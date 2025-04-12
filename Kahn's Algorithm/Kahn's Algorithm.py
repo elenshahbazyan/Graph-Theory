@@ -1,48 +1,51 @@
-graph = {
-    '0' : ['2', '6', '3'],
-    '1' : ['4'],
-    '2' : ['6'],
-    '3' : ['1', '4'],
-    '4' : ['5', '8'],
-    '5' : [],
-    '6' : ['7', '11'],
-    '7' : ['4', '12'],
-    '8' : [],
-    '9' : ['10'],
-    '10' : ['6'],
-    '11' : ['12'],
-    '12' : ['8'],
-    '13' : []
+from collections import defaultdict, deque
 
-}
+edges = [
+    ('0', '2'), ('0', '6'), ('0', '3'),
+    ('1', '4'),
+    ('2', '6'),
+    ('3', '1'), ('3', '4'),
+    ('4', '5'), ('4', '8'),
+    ('6', '7'), ('6', '11'),
+    ('7', '4'), ('7', '12'),
+    ('10', '6'),
+    ('9', '10'),
+    ('11', '12'),
+    ('12', '8')
+]
 
+graph = defaultdict(list)
+nodes = set()
 
+for src, dest in edges:
+    graph[src].append(dest)
+    nodes.update([src, dest])
 
-from collections import deque
+for node in nodes:
+    if node not in graph:
+        graph[node] = []
 
-def FindTopologicalOrdering(graph):
+def find_topological_ordering(graph):
     in_degree = {node: 0 for node in graph}
-
     for node in graph:
         for neighbor in graph[node]:
             in_degree[neighbor] += 1
 
-    q = deque([node for node in graph if in_degree[node] == 0])
-    order = []
+    queue = deque([node for node in graph if in_degree[node] == 0])
+    topo_order = []
 
-    while q:
-        at = q.popleft()
-        order.append(at)
+    while queue:
+        current = queue.popleft()
+        topo_order.append(current)
 
-        for neighbor in graph[at]:
+        for neighbor in graph[current]:
             in_degree[neighbor] -= 1
             if in_degree[neighbor] == 0:
-                q.append(neighbor)
+                queue.append(neighbor)
 
-    if len(order) == len(graph):
-        return order
+    if len(topo_order) == len(graph):
+        return topo_order
     else:
-        return -1
+        return "topological ordering not possible"
 
-
-print("Topological Ordering:", FindTopologicalOrdering(graph))
+print("Topological Ordering:", find_topological_ordering(graph))
